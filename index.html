@@ -7,10 +7,26 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="game-container">
+    <!-- ホーム画面 -->
+    <div class="home-screen" id="homeScreen">
+        <h1 class="home-title">もぐらたたき</h1>
+        <div class="home-mole"></div>
+        <div class="how-to-play">
+            <h2>あそびかた</h2>
+            <ul>
+                <li>もぐらをクリックしてたたこう</li>
+                <li>たくさんたたくとレベルアップ</li>
+                <li>制限時間は30秒</li>
+            </ul>
+        </div>
+        <button class="start-btn" id="homeStartBtn">ゲームスタート</button>
+    </div>
+
+    <div class="game-container" id="gameContainer" style="display: none;">
         <h1 class="game-title">もぐらたたき</h1>
 
         <div class="stats">
+            <button class="pause-btn" id="pauseBtn">⏸</button>
             <div class="stat-item">
                 <span class="stat-label">スコア</span>
                 <span class="stat-value" id="score">0</span>
@@ -55,7 +71,17 @@
             </div>
         </div>
 
-        <button class="start-btn" id="startBtn">ゲームスタート</button>
+    </div>
+
+    <!-- ポーズモーダル -->
+    <div class="modal" id="pauseModal">
+        <div class="modal-content">
+            <h2>ポーズ中</h2>
+            <div class="modal-buttons">
+                <button class="restart-btn" id="resumeBtn">再開</button>
+                <button class="home-btn" id="pauseHomeBtn">ホームに戻る</button>
+            </div>
+        </div>
     </div>
 
     <div class="modal" id="gameOverModal">

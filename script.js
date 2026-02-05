@@ -4,6 +4,7 @@ const gameState = {
     level: 1,
     timeLeft: 30,
     isPlaying: false,
+    isPaused: false,
     currentMole: null,
     gameTimer: null,
     moleTimer: null
@@ -19,11 +20,17 @@ const levels = [
 ];
 
 // DOM要素
+const homeScreen = document.getElementById('homeScreen');
+const gameContainer = document.getElementById('gameContainer');
+const homeStartBtn = document.getElementById('homeStartBtn');
 const scoreDisplay = document.getElementById('score');
 const levelDisplay = document.getElementById('level');
 const timerDisplay = document.getElementById('timer');
-const startBtn = document.getElementById('startBtn');
+const pauseBtn = document.getElementById('pauseBtn');
 const gameBoard = document.getElementById('gameBoard');
+const pauseModal = document.getElementById('pauseModal');
+const resumeBtn = document.getElementById('resumeBtn');
+const pauseHomeBtn = document.getElementById('pauseHomeBtn');
 const gameOverModal = document.getElementById('gameOverModal');
 const finalScoreDisplay = document.getElementById('finalScore');
 const finalLevelDisplay = document.getElementById('finalLevel');
@@ -99,6 +106,28 @@ class SoundManager {
 
 const soundManager = new SoundManager();
 
+// ホーム画面からゲーム開始
+function showGame() {
+    homeScreen.style.display = 'none';
+    gameContainer.style.display = 'block';
+    startGame();
+}
+
+// ホーム画面に戻る
+function showHome() {
+    gameState.isPlaying = false;
+    gameState.isPaused = false;
+    clearInterval(gameState.gameTimer);
+    clearTimeout(gameState.moleTimer);
+    hideMole();
+    hammer.classList.remove('active');
+    document.body.classList.remove('playing');
+    pauseModal.classList.remove('show');
+    gameOverModal.classList.remove('show');
+    gameContainer.style.display = 'none';
+    homeScreen.style.display = 'flex';
+}
+
 // ゲーム開始
 function startGame() {
     soundManager.init();
@@ -109,13 +138,10 @@ function startGame() {
     gameState.level = 1;
     gameState.timeLeft = 30;
     gameState.isPlaying = true;
+    gameState.isPaused = false;
 
     // 表示更新
     updateDisplay();
-
-    // ボタン無効化
-    startBtn.disabled = true;
-    startBtn.textContent = 'プレイ中...';
 
     // ハンマー表示
     hammer.classList.add('active');
@@ -260,10 +286,28 @@ function endGame() {
     finalScoreDisplay.textContent = gameState.score;
     finalLevelDisplay.textContent = gameState.level;
     gameOverModal.classList.add('show');
+}
 
-    // ボタンリセット
-    startBtn.disabled = false;
-    startBtn.textContent = 'ゲームスタート';
+// ポーズ
+function pauseGame() {
+    if (!gameState.isPlaying || gameState.isPaused) return;
+    gameState.isPaused = true;
+    clearInterval(gameState.gameTimer);
+    clearTimeout(gameState.moleTimer);
+    hammer.classList.remove('active');
+    document.body.classList.remove('playing');
+    pauseModal.classList.add('show');
+}
+
+// 再開
+function resumeGame() {
+    if (!gameState.isPaused) return;
+    gameState.isPaused = false;
+    pauseModal.classList.remove('show');
+    hammer.classList.add('active');
+    document.body.classList.add('playing');
+    startGameTimer();
+    spawnMole();
 }
 
 // リスタート
@@ -272,15 +316,13 @@ function restartGame() {
     startGame();
 }
 
-// ホームに戻る
-function goHome() {
-    gameOverModal.classList.remove('show');
-}
-
 // イベントリスナー
-startBtn.addEventListener('click', startGame);
+homeStartBtn.addEventListener('click', showGame);
+pauseBtn.addEventListener('click', pauseGame);
+resumeBtn.addEventListener('click', resumeGame);
+pauseHomeBtn.addEventListener('click', showHome);
 restartBtn.addEventListener('click', restartGame);
-homeBtn.addEventListener('click', goHome);
+homeBtn.addEventListener('click', showHome);
 
 holes.forEach(hole => {
     hole.addEventListener('click', handleHoleClick);
