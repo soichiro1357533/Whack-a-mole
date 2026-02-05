@@ -243,6 +243,45 @@ body {
     filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(2);
 }
 
+/* アイテム（絵文字で代用） */
+.mole.clock, .mole.heart {
+    background-image: none !important; /* 画像を無効化 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 60px;
+    cursor: pointer;
+}
+
+.mole.clock::before {
+    content: '⏰';
+    text-shadow: 2px 2px 0 #000;
+}
+
+.mole.heart::before {
+    content: '❤';
+    color: #ff4081;
+    text-shadow: 2px 2px 0 #000;
+}
+
+/* スコアポップアップ */
+.score-popup {
+    position: absolute;
+    color: #ffeb3b;
+    font-weight: bold;
+    font-size: 24px;
+    pointer-events: none;
+    animation: popupFloat 0.8s ease-out forwards;
+    z-index: 100;
+    text-shadow: 2px 2px 0 #000;
+    white-space: nowrap;
+}
+
+@keyframes popupFloat {
+    0% { transform: translateY(0) scale(1); opacity: 1; }
+    100% { transform: translateY(-50px) scale(1.5); opacity: 0; }
+}
+
 .start-btn,
 .restart-btn {
     background: #9bbc0f;

@@ -3,7 +3,7 @@ const gameState = {
     score: 0,
     level: 1,
     timeLeft: 30,
-    lives: 5,
+    lives: 3,
     mode: 'normal', // 'normal' or 'endless'
     isPlaying: false,
     isPaused: false,
@@ -114,6 +114,16 @@ class SoundManager {
         setTimeout(() => this.playTone(330, 0.1, 'sine', 0.2), 100);
         setTimeout(() => this.playTone(392, 0.15, 'sine', 0.2), 200);
     }
+    
+    playTimeUp() {
+        this.playTone(1200, 0.1, 'triangle', 0.2);
+        setTimeout(() => this.playTone(1500, 0.2, 'sine', 0.2), 100);
+    }
+    
+    playHeal() {
+        this.playTone(400, 0.1, 'sine', 0.2);
+        setTimeout(() => this.playTone(600, 0.2, 'sine', 0.2), 100);
+    }
 }
 
 const soundManager = new SoundManager();
@@ -175,7 +185,7 @@ function startGame() {
     gameState.score = 0;
     gameState.level = 1;
     gameState.timeLeft = 30;
-    gameState.lives = 5;
+    gameState.lives = 3;
     gameState.isPlaying = true;
     gameState.isPaused = false;
 
@@ -220,12 +230,31 @@ function spawnMole() {
     // ランダムな穴を選択
     const randomHole = Math.floor(Math.random() * 9);
     const mole = moles[randomHole];
-
-    // ランダムな画像を選択
-    const randomImage = moleImages[Math.floor(Math.random() * moleImages.length)];
-    mole.style.backgroundImage = `url('${randomImage}')`;
-
+    
     gameState.currentMole = randomHole;
+
+    // アイテム出現判定 (10%の確率)
+    const isItem = Math.random() < 0.02;
+    let itemType = null;
+    
+    if (isItem) {
+        if (gameState.mode === 'normal') {
+            itemType = 'clock'; // ノーマルなら時計
+        } else {
+            itemType = 'heart'; // エンドレスならハート
+        }
+    }
+
+    if (itemType) {
+        mole.classList.add(itemType);
+        mole.dataset.type = itemType;
+    } else {
+        // 通常のモグラ
+        const randomImage = moleImages[Math.floor(Math.random() * moleImages.length)];
+        mole.style.backgroundImage = `url('${randomImage}')`;
+        mole.dataset.type = 'mole';
+    }
+
     mole.classList.add('up');
 
     // 現在のレベル設定を取得
@@ -234,9 +263,11 @@ function spawnMole() {
     // モグラを隠すタイマー
     setTimeout(() => {
         if (mole.classList.contains('up') && !mole.classList.contains('hit')) {
-            mole.classList.remove('up');
-            // エンドレスモードでミス
-            if (gameState.mode === 'endless' && gameState.isPlaying) {
+            mole.classList.remove('up', 'clock', 'heart');
+            mole.style.backgroundImage = ''; // 画像リセット
+            
+            // エンドレスモードでミス (アイテムは見逃してもOK)
+            if (gameState.mode === 'endless' && gameState.isPlaying && mole.dataset.type === 'mole') {
                 gameState.lives--;
                 soundManager.playMiss();
                 updateDisplay();
@@ -256,9 +287,33 @@ function spawnMole() {
 // モグラを隠す
 function hideMole() {
     moles.forEach(mole => {
-        mole.classList.remove('up', 'hit');
+        mole.classList.remove('up', 'hit', 'clock', 'heart');
+        mole.style.backgroundImage = ''; // 画像リセット
+        mole.dataset.type = '';
     });
     gameState.currentMole = null;
+}
+
+// スコアポップアップ表示
+function showScorePopup(rect, text) {
+    const popup = document.createElement('div');
+    popup.classList.add('score-popup');
+    popup.textContent = text;
+    
+    // 穴の中央付近に配置
+    const x = rect.left + rect.width / 2;
+    const y = rect.top;
+    
+    popup.style.left = `${x}px`;
+    popup.style.top = `${y}px`;
+    popup.style.transform = 'translate(-50%, -50%)';
+    
+    document.body.appendChild(popup);
+    
+    // アニメーション終了後に削除
+    setTimeout(() => {
+        popup.remove();
+    }, 800);
 }
 
 // 穴クリック処理
@@ -266,24 +321,46 @@ function handleHoleClick(e) {
     if (!gameState.isPlaying) return;
 
     const hole = e.currentTarget;
-    const holeIndex = parseInt(hole.dataset.hole);
     const mole = hole.querySelector('.mole');
+    const type = mole.dataset.type;
 
     if (mole.classList.contains('up') && !mole.classList.contains('hit')) {
-        // ヒット！
-        mole.classList.add('hit');
-        gameState.score += 10;
-        soundManager.playHit();
-
-        // レベルチェック
-        checkLevelUp();
+        const rect = hole.getBoundingClientRect();
+        
+        if (type === 'clock') {
+            // 時計アイテム
+            mole.classList.add('hit');
+            gameState.timeLeft += 5;
+            timerDisplay.textContent = gameState.timeLeft;
+            soundManager.playTimeUp();
+            showScorePopup(rect, "+5 Sec");
+            
+        } else if (type === 'heart') {
+            // ハートアイテム
+            mole.classList.add('hit');
+            gameState.lives++;
+            updateDisplay();
+            soundManager.playHeal();
+            showScorePopup(rect, "+1 Life");
+            
+        } else {
+            // 通常モグラ
+            mole.classList.add('hit');
+            gameState.score += 10;
+            soundManager.playHit();
+            showScorePopup(rect, "+10");
+            
+            // レベルチェック
+            checkLevelUp();
+        }
 
         // 表示更新
         updateDisplay();
 
         // モグラを隠す
         setTimeout(() => {
-            mole.classList.remove('up', 'hit');
+            mole.classList.remove('up', 'hit', 'clock', 'heart');
+            mole.style.backgroundImage = '';
         }, 200);
     } else if (!mole.classList.contains('up')) {
         // ミス
