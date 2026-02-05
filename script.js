@@ -3,6 +3,8 @@ const gameState = {
     score: 0,
     level: 1,
     timeLeft: 30,
+    lives: 5,
+    mode: 'normal', // 'normal' or 'endless'
     isPlaying: false,
     isPaused: false,
     currentMole: null,
@@ -10,20 +12,29 @@ const gameState = {
     moleTimer: null
 };
 
-// レベル設計
+// レベル設計（10匹=100点ごとにレベルアップ）
 const levels = [
     { level: 1, requiredScore: 0, spawnInterval: 1000, moleDisplayTime: 800 },
-    { level: 2, requiredScore: 50, spawnInterval: 800, moleDisplayTime: 700 },
-    { level: 3, requiredScore: 100, spawnInterval: 600, moleDisplayTime: 600 },
-    { level: 4, requiredScore: 200, spawnInterval: 500, moleDisplayTime: 500 },
-    { level: 5, requiredScore: 350, spawnInterval: 400, moleDisplayTime: 400 }
+    { level: 2, requiredScore: 100, spawnInterval: 900, moleDisplayTime: 750 },
+    { level: 3, requiredScore: 200, spawnInterval: 800, moleDisplayTime: 700 },
+    { level: 4, requiredScore: 300, spawnInterval: 700, moleDisplayTime: 650 },
+    { level: 5, requiredScore: 400, spawnInterval: 600, moleDisplayTime: 600 },
+    { level: 6, requiredScore: 500, spawnInterval: 550, moleDisplayTime: 550 },
+    { level: 7, requiredScore: 600, spawnInterval: 500, moleDisplayTime: 500 },
+    { level: 8, requiredScore: 700, spawnInterval: 450, moleDisplayTime: 450 },
+    { level: 9, requiredScore: 800, spawnInterval: 400, moleDisplayTime: 400 },
+    { level: 10, requiredScore: 900, spawnInterval: 350, moleDisplayTime: 350 }
 ];
 
 // DOM要素
 const homeScreen = document.getElementById('homeScreen');
 const gameContainer = document.getElementById('gameContainer');
-const homeStartBtn = document.getElementById('homeStartBtn');
+const normalModeBtn = document.getElementById('normalModeBtn');
+const endlessModeBtn = document.getElementById('endlessModeBtn');
 const scoreDisplay = document.getElementById('score');
+const timerItem = document.getElementById('timerItem');
+const livesItem = document.getElementById('livesItem');
+const livesDisplay = document.getElementById('lives');
 const levelDisplay = document.getElementById('level');
 const timerDisplay = document.getElementById('timer');
 const pauseBtn = document.getElementById('pauseBtn');
@@ -39,6 +50,7 @@ const homeBtn = document.getElementById('homeBtn');
 const holes = document.querySelectorAll('.hole');
 const moles = document.querySelectorAll('.mole');
 const hammer = document.getElementById('hammer');
+const countdown = document.getElementById('countdown');
 
 // サウンドシステム（Web Audio API）
 class SoundManager {
@@ -106,11 +118,37 @@ class SoundManager {
 
 const soundManager = new SoundManager();
 
-// ホーム画面からゲーム開始
-function showGame() {
+// カウントダウン
+function startCountdown(mode) {
+    gameState.mode = mode;
     homeScreen.style.display = 'none';
     gameContainer.style.display = 'block';
-    startGame();
+
+    // モードに応じて表示切替
+    if (mode === 'endless') {
+        timerItem.style.display = 'none';
+        livesItem.style.display = 'flex';
+    } else {
+        timerItem.style.display = 'flex';
+        livesItem.style.display = 'none';
+    }
+
+    let count = 3;
+    countdown.textContent = count;
+    countdown.classList.add('show');
+
+    const countInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdown.textContent = count;
+            countdown.classList.remove('show');
+            setTimeout(() => countdown.classList.add('show'), 50);
+        } else {
+            clearInterval(countInterval);
+            countdown.classList.remove('show');
+            startGame();
+        }
+    }, 1000);
 }
 
 // ホーム画面に戻る
@@ -137,6 +175,7 @@ function startGame() {
     gameState.score = 0;
     gameState.level = 1;
     gameState.timeLeft = 30;
+    gameState.lives = 5;
     gameState.isPlaying = true;
     gameState.isPaused = false;
 
@@ -147,8 +186,10 @@ function startGame() {
     hammer.classList.add('active');
     document.body.classList.add('playing');
 
-    // タイマー開始
-    startGameTimer();
+    // ノーマルモードのみタイマー開始
+    if (gameState.mode === 'normal') {
+        startGameTimer();
+    }
 
     // モグラ出現開始
     spawnMole();
@@ -194,6 +235,15 @@ function spawnMole() {
     setTimeout(() => {
         if (mole.classList.contains('up') && !mole.classList.contains('hit')) {
             mole.classList.remove('up');
+            // エンドレスモードでミス
+            if (gameState.mode === 'endless' && gameState.isPlaying) {
+                gameState.lives--;
+                soundManager.playMiss();
+                updateDisplay();
+                if (gameState.lives <= 0) {
+                    endGame();
+                }
+            }
         }
     }, currentLevel.moleDisplayTime);
 
@@ -262,6 +312,7 @@ function updateDisplay() {
     scoreDisplay.textContent = gameState.score;
     levelDisplay.textContent = gameState.level;
     timerDisplay.textContent = gameState.timeLeft;
+    livesDisplay.textContent = '❤'.repeat(gameState.lives);
 }
 
 // ゲーム終了
@@ -306,7 +357,9 @@ function resumeGame() {
     pauseModal.classList.remove('show');
     hammer.classList.add('active');
     document.body.classList.add('playing');
-    startGameTimer();
+    if (gameState.mode === 'normal') {
+        startGameTimer();
+    }
     spawnMole();
 }
 
@@ -317,7 +370,8 @@ function restartGame() {
 }
 
 // イベントリスナー
-homeStartBtn.addEventListener('click', showGame);
+normalModeBtn.addEventListener('click', () => startCountdown('normal'));
+endlessModeBtn.addEventListener('click', () => startCountdown('endless'));
 pauseBtn.addEventListener('click', pauseGame);
 resumeBtn.addEventListener('click', resumeGame);
 pauseHomeBtn.addEventListener('click', showHome);

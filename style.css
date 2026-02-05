@@ -65,11 +65,17 @@ body {
     box-shadow: 6px 6px 0 #000;
 }
 
-.how-to-play h2 {
+.how-to-play h2,
+.how-to-play h3 {
     color: #9bbc0f;
     font-size: 0.8rem;
     margin-bottom: 12px;
     text-align: center;
+}
+
+.how-to-play h3 {
+    font-size: 0.6rem;
+    margin-top: 15px;
 }
 
 .how-to-play ul {
@@ -89,6 +95,22 @@ body {
     position: absolute;
     left: 0;
     color: #9bbc0f;
+}
+
+/* モード選択 */
+.mode-select {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.endless-btn {
+    background: #306230;
+    color: #9bbc0f;
+}
+
+.endless-btn:hover {
+    background: #0f380f;
 }
 
 .game-container {
@@ -456,4 +478,27 @@ body {
 body.playing,
 body.playing * {
     cursor: none !important;
+}
+
+/* カウントダウン */
+.countdown {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2000;
+    font-size: 6rem;
+    color: #9bbc0f;
+    text-shadow: 4px 4px 0 #0f380f;
+}
+
+.countdown.show {
+    display: block;
+    animation: countPop 0.3s steps(3);
+}
+
+@keyframes countPop {
+    0% { transform: translate(-50%, -50%) scale(1.5); opacity: 0; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
 }

@@ -15,11 +15,18 @@
             <h2>あそびかた</h2>
             <ul>
                 <li>もぐらをクリックしてたたこう</li>
-                <li>たくさんたたくとレベルアップ</li>
-                <li>制限時間は30秒</li>
+                <li>10匹たたくとレベルアップ</li>
+            </ul>
+            <h3>モード</h3>
+            <ul>
+                <li>ノーマル: 30秒で何匹たたけるか</li>
+                <li>エンドレス: 5回逃すとゲームオーバー</li>
             </ul>
         </div>
-        <button class="start-btn" id="homeStartBtn">ゲームスタート</button>
+        <div class="mode-select">
+            <button class="start-btn" id="normalModeBtn">ノーマル (30秒)</button>
+            <button class="start-btn endless-btn" id="endlessModeBtn">エンドレス</button>
+        </div>
     </div>
 
     <div class="game-container" id="gameContainer" style="display: none;">
@@ -35,9 +42,13 @@
                 <span class="stat-label">レベル</span>
                 <span class="stat-value" id="level">1</span>
             </div>
-            <div class="stat-item">
+            <div class="stat-item" id="timerItem">
                 <span class="stat-label">残り時間</span>
                 <span class="stat-value" id="timer">30</span>
+            </div>
+            <div class="stat-item" id="livesItem" style="display: none;">
+                <span class="stat-label">ライフ</span>
+                <span class="stat-value" id="lives">❤❤❤❤❤</span>
             </div>
         </div>
 
@@ -95,6 +106,9 @@
             </div>
         </div>
     </div>
+
+    <!-- カウントダウン -->
+    <div class="countdown" id="countdown"></div>
 
     <div class="hammer" id="hammer"></div>
     <script src="script.js"></script>
