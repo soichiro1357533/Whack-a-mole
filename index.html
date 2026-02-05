@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>もぐらたたき</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1 class="game-title">もぐらたたき</h1>
+
+        <div class="stats">
+            <div class="stat-item">
+                <span class="stat-label">スコア</span>
+                <span class="stat-value" id="score">0</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">レベル</span>
+                <span class="stat-value" id="level">1</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-label">残り時間</span>
+                <span class="stat-value" id="timer">30</span>
+            </div>
+        </div>
+
+        <div class="game-board" id="gameBoard">
+            <div class="hole" data-hole="0">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="1">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="2">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="3">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="4">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="5">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="6">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="7">
+                <div class="mole"></div>
+            </div>
+            <div class="hole" data-hole="8">
+                <div class="mole"></div>
+            </div>
+        </div>
+
+        <button class="start-btn" id="startBtn">ゲームスタート</button>
+    </div>
+
+    <div class="modal" id="gameOverModal">
+        <div class="modal-content">
+            <h2>ゲームオーバー</h2>
+            <p>最終スコア: <span id="finalScore">0</span></p>
+            <p>到達レベル: <span id="finalLevel">1</span></p>
+            <div class="modal-buttons">
+                <button class="restart-btn" id="restartBtn">もう一度プレイ</button>
+                <button class="home-btn" id="homeBtn">ホームに戻る</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="hammer" id="hammer"></div>
+    <script src="script.js"></script>
+</body>
+</html>

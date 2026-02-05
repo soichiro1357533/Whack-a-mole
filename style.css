@@ -1,0 +1,369 @@
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    image-rendering: pixelated;
+}
+
+body {
+    font-family: 'DotGothic16', 'Press Start 2P', cursive;
+    background-color: #306230;
+    background-image:
+        linear-gradient(90deg, transparent 50%, rgba(0,0,0,0.05) 50%),
+        linear-gradient(rgba(0,0,0,0.05) 50%, transparent 50%);
+    background-size: 4px 4px;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+
+.game-container {
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+}
+
+.game-title {
+    color: #9bbc0f;
+    font-size: 1.5rem;
+    text-shadow:
+        4px 4px 0 #0f380f,
+        -1px -1px 0 #0f380f,
+        1px -1px 0 #0f380f,
+        -1px 1px 0 #0f380f;
+    margin-bottom: 20px;
+    letter-spacing: 2px;
+}
+
+.stats {
+    display: flex;
+    justify-content: space-around;
+    background: #0f380f;
+    border: 4px solid #9bbc0f;
+    padding: 15px 10px;
+    margin-bottom: 20px;
+    box-shadow:
+        8px 8px 0 #0f380f,
+        inset -4px -4px 0 #306230;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.stat-label {
+    font-size: 0.5rem;
+    color: #8bac0f;
+}
+
+.stat-value {
+    font-size: 1.2rem;
+    color: #9bbc0f;
+}
+
+.game-board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    background: #8b4513;
+    border: 8px solid #5d2e0c;
+    padding: 16px;
+    box-shadow:
+        inset 8px 8px 0 #a0522d,
+        inset -8px -8px 0 #3d1f0a,
+        12px 12px 0 #0f380f;
+    margin-bottom: 20px;
+}
+
+.hole {
+    aspect-ratio: 1;
+    min-width: 140px;
+    min-height: 140px;
+    background: #1a0f00;
+    border: 4px solid #3d1f0a;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+    box-shadow:
+        inset 4px 4px 0 #000,
+        inset -2px -2px 0 #2a1a00;
+}
+
+.hole::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 12px;
+    background: #3d1f0a;
+    z-index: 3;
+}
+
+/* キャラクター */
+.mole {
+    position: absolute;
+    bottom: -150px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 140px;
+    background-image: url('a.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center top;
+    transition: bottom 0.08s steps(3);
+    z-index: 2;
+}
+
+.mole.up {
+    bottom: -10px;
+}
+
+/* ヒット時 */
+.mole.hit {
+    filter: brightness(1.5) sepia(1) hue-rotate(-50deg) saturate(2);
+}
+
+.start-btn,
+.restart-btn {
+    background: #9bbc0f;
+    color: #0f380f;
+    border: 4px solid #0f380f;
+    padding: 16px 32px;
+    font-size: 0.7rem;
+    font-family: 'DotGothic16', 'Press Start 2P', cursive;
+    cursor: pointer;
+    box-shadow:
+        4px 4px 0 #0f380f,
+        inset -4px -4px 0 #8bac0f;
+    transition: all 0.1s steps(1);
+    text-transform: uppercase;
+}
+
+.start-btn:hover,
+.restart-btn:hover {
+    background: #8bac0f;
+    box-shadow:
+        2px 2px 0 #0f380f,
+        inset -4px -4px 0 #306230;
+    transform: translate(2px, 2px);
+}
+
+.start-btn:active,
+.restart-btn:active {
+    box-shadow:
+        0 0 0 #0f380f,
+        inset 4px 4px 0 #306230;
+    transform: translate(4px, 4px);
+}
+
+.start-btn:disabled {
+    background: #306230;
+    color: #0f380f;
+    cursor: not-allowed;
+    box-shadow: 4px 4px 0 #0f380f;
+    transform: none;
+}
+
+/* Modal */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(15, 56, 15, 0.9);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal.show {
+    display: flex;
+}
+
+.modal-content {
+    background: #0f380f;
+    border: 8px solid #9bbc0f;
+    padding: 40px;
+    text-align: center;
+    font-family: 'DotGothic16', 'Press Start 2P', cursive;
+    box-shadow:
+        12px 12px 0 #000,
+        inset -4px -4px 0 #306230;
+    animation: modalPop 0.3s steps(4);
+}
+
+@keyframes modalPop {
+    0% { transform: scale(0.5); opacity: 0; }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+.modal-content h2 {
+    color: #9bbc0f;
+    font-size: 1rem;
+    margin-bottom: 24px;
+    text-shadow: 2px 2px 0 #306230;
+}
+
+.modal-content p {
+    font-size: 0.6rem;
+    color: #8bac0f;
+    margin-bottom: 12px;
+    line-height: 2;
+}
+
+.modal-content #finalScore,
+.modal-content #finalLevel {
+    color: #9bbc0f;
+}
+
+.modal-buttons {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.home-btn {
+    background: #306230;
+    color: #9bbc0f;
+    border: 4px solid #0f380f;
+    padding: 16px 32px;
+    font-size: 0.7rem;
+    font-family: 'DotGothic16', 'Press Start 2P', cursive;
+    cursor: pointer;
+    box-shadow:
+        4px 4px 0 #0f380f,
+        inset -4px -4px 0 #0f380f;
+    transition: all 0.1s steps(1);
+}
+
+.home-btn:hover {
+    background: #0f380f;
+    box-shadow:
+        2px 2px 0 #0f380f,
+        inset -4px -4px 0 #306230;
+    transform: translate(2px, 2px);
+}
+
+.home-btn:active {
+    box-shadow:
+        0 0 0 #0f380f,
+        inset 4px 4px 0 #306230;
+    transform: translate(4px, 4px);
+}
+
+/* Level up animation */
+@keyframes levelUp {
+    0% { transform: scale(1); color: #9bbc0f; }
+    25% { transform: scale(1.2); color: #fff; }
+    50% { transform: scale(1); color: #9bbc0f; }
+    75% { transform: scale(1.2); color: #fff; }
+    100% { transform: scale(1); color: #9bbc0f; }
+}
+
+.level-up {
+    animation: levelUp 0.5s steps(2);
+}
+
+/* Hit effect */
+@keyframes hitFlash {
+    0%, 100% { background: #1a0f00; }
+    50% { background: #ffff00; }
+}
+
+.hole.flash {
+    animation: hitFlash 0.1s steps(1) 2;
+}
+
+/* Responsive */
+@media (max-width: 450px) {
+    .game-title {
+        font-size: 1rem;
+    }
+
+    .game-board {
+        gap: 8px;
+        padding: 12px;
+    }
+
+    .stats {
+        padding: 10px 5px;
+    }
+
+    .stat-label {
+        font-size: 0.4rem;
+    }
+
+    .stat-value {
+        font-size: 0.9rem;
+    }
+
+    .mole {
+        width: 130px;
+        height: 180px;
+        bottom: -190px;
+        transform: translateX(-50%);
+    }
+
+    .mole.up {
+        bottom: -40px;
+    }
+
+    .start-btn,
+    .restart-btn {
+        font-size: 0.6rem;
+        padding: 12px 24px;
+    }
+
+    .modal-content {
+        padding: 24px;
+    }
+
+    .modal-content h2 {
+        font-size: 0.8rem;
+    }
+
+    .modal-content p {
+        font-size: 0.5rem;
+    }
+}
+
+/* ハンマー */
+.hammer {
+    position: fixed;
+    width: 80px;
+    height: 80px;
+    background-image: url('Hammer.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-20%, -20%) rotate(-30deg);
+    transform-origin: bottom right;
+    transition: transform 0.05s;
+    display: none;
+}
+
+.hammer.active {
+    display: block;
+}
+
+.hammer.swing {
+    transform: translate(-20%, -20%) rotate(20deg);
+}
+
+body.playing,
+body.playing * {
+    cursor: none !important;
+}
