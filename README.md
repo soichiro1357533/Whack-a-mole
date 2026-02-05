@@ -1,7 +1,7 @@
 # Whack-a-Mole Game
 
 このゲームはGitHub Pagesで公開されています。以下のリンクからブラウザで直接遊ぶことができます。
-**[ここをクリックしてゲームをプレイ](https://sou.github.io/Whack-a-Mole/)**
+**[ここをクリックしてゲームをプレイ](https://soichiro1357533.github.io/Whack-a-mole/)**
 
 
 これはシンプルなモグラ叩きゲームです。
